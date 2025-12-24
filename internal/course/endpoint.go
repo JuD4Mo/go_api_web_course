@@ -79,6 +79,9 @@ func makeCreateEndpoint(s Service) Controller {
 
 		course, err := s.Create(ctx, req.Name, req.StartDate, req.EndDate)
 		if err != nil {
+			if err == ErrEndLessStart || err == ErrInvalidStartDate || err == ErrInvalidEndDate {
+				return nil, response.BadRequest(err.Error())
+			}
 			return nil, response.InternalServerError(err.Error())
 		}
 
@@ -153,7 +156,7 @@ func makeUpdateEndpoint(s Service) Controller {
 				return nil, response.NotFound(err.Error())
 			}
 
-			if err == ErrInvalidStartDate || err == ErrInvalidEndDate {
+			if err == ErrInvalidStartDate || err == ErrInvalidEndDate || err == ErrEndLessStart {
 				return nil, response.BadRequest(err.Error())
 			}
 
