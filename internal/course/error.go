@@ -15,6 +15,6 @@ type ErrCourseNotFound struct {
 	CourseId string
 }
 
-func (e *ErrCourseNotFound) Error() string {
+func (e ErrCourseNotFound) Error() string {
 	return fmt.Sprintf("course '%s' does not exist", e.CourseId)
 }

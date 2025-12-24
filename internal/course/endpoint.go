@@ -92,8 +92,7 @@ func makeGetEndpoint(s Service) Controller {
 
 		course, err := s.Get(ctx, req.ID)
 		if err != nil {
-			var nf *ErrCourseNotFound
-			if errors.As(err, &nf) {
+			if errors.As(err, &ErrCourseNotFound{}) {
 				return nil, response.NotFound(err.Error())
 			}
 			return nil, response.InternalServerError(err.Error())
@@ -149,6 +148,15 @@ func makeUpdateEndpoint(s Service) Controller {
 
 		err := s.Update(ctx, req.ID, req.Name, req.StartDate, req.EndDate)
 		if err != nil {
+
+			if errors.As(err, &ErrCourseNotFound{}) {
+				return nil, response.NotFound(err.Error())
+			}
+
+			if err == ErrInvalidStartDate || err == ErrInvalidEndDate {
+				return nil, response.BadRequest(err.Error())
+			}
+
 			return nil, response.InternalServerError(err.Error())
 		}
 		return response.Created("updated", nil, nil), nil
@@ -161,6 +169,9 @@ func makeDeleteEndpoint(s Service) Controller {
 
 		err := s.Delete(ctx, req.ID)
 		if err != nil {
+			if errors.As(err, &ErrCourseNotFound{}) {
+				return nil, response.NotFound(err.Error())
+			}
 			return nil, response.InternalServerError(err.Error())
 		}
 

@@ -51,6 +51,9 @@ func (repo *repo) Get(ctx context.Context, id string) (*domain.Course, error) {
 	// result := repo.db.Model(&Course{}).Where("id = ?", id).First(&course)
 	result := repo.db.WithContext(ctx).First(&course)
 	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return nil, ErrCourseNotFound{CourseId: id}
+		}
 		return nil, result.Error
 	}
 
@@ -93,6 +96,10 @@ func (repo *repo) Update(ctx context.Context, id string, name *string, startDate
 		return result.Error
 	}
 
+	if result.RowsAffected == 0 {
+		return ErrCourseNotFound{CourseId: id}
+	}
+
 	return nil
 }
 
@@ -106,6 +113,9 @@ func (repo *repo) Delete(ctx context.Context, id string) error {
 		return result.Error
 	}
 
+	if result.RowsAffected == 0 {
+		return ErrCourseNotFound{CourseId: id}
+	}
 	return nil
 }
 
