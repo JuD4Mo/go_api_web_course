@@ -39,12 +39,12 @@ func (s service) Create(ctx context.Context, name string, startDate, endDate str
 
 	startDateParsed, err := time.Parse("2006-01-02", startDate)
 	if err != nil {
-		return nil, err
+		return nil, ErrInvalidStartDate
 	}
 
 	endDateParsed, err := time.Parse("2006-01-02", endDate)
 	if err != nil {
-		return nil, err
+		return nil, ErrInvalidEndDate
 	}
 
 	course := &domain.Course{
@@ -83,7 +83,7 @@ func (s service) Update(ctx context.Context, id string, name, startDate, endDate
 	if startDate != nil && *startDate != "" {
 		date, err := time.Parse("2006-01-02", *startDate)
 		if err != nil {
-			return err
+			return ErrInvalidStartDate
 		}
 		startDateParsed = &date
 	}
@@ -91,7 +91,7 @@ func (s service) Update(ctx context.Context, id string, name, startDate, endDate
 	if endDate != nil && *endDate != "" {
 		date, err := time.Parse("2006-01-02", *endDate)
 		if err != nil {
-			return err
+			return ErrInvalidEndDate
 		}
 		endDateParsed = &date
 	}
