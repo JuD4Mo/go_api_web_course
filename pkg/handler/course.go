@@ -3,8 +3,10 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/JuD4Mo/go_api_web_course/internal/course"
@@ -115,6 +117,12 @@ func decodeUpdateCourse(_ context.Context, r *http.Request) (interface{}, error)
 }
 
 func decodeDeleteCourse(_ context.Context, r *http.Request) (interface{}, error) {
+
+	err := authorization(r.Header.Get("Authorization"))
+	if err != nil {
+		return nil, response.Forbidden(err.Error())
+	}
+
 	var deleteReq course.DeleteReq
 	path := mux.Vars(r)
 	deleteReq.ID = path["id"]
@@ -135,4 +143,12 @@ func encodedError(_ context.Context, err error, w http.ResponseWriter) {
 	w.WriteHeader(resp.StatusCode())
 	_ = json.NewEncoder(w).Encode(resp)
 
+}
+
+func authorization(token string) error {
+	if token != os.Getenv("TOKEN") {
+		return errors.New("invalid token")
+	}
+
+	return nil
 }
